@@ -1,0 +1,12 @@
+Options -Indexes
+RewriteEngine On
+
+# Redirect requests to the root directory to index.php
+RewriteRule ^$ /index.php [L]
+
+# If the requested filename is not a directory...
+RewriteCond %{REQUEST_FILENAME} !-d
+# ...and the requested filename is not a file that exists...
+RewriteCond %{REQUEST_FILENAME} !-f
+# ...then rewrite the request to 404.html
+RewriteRule ^ /404.html [L]
