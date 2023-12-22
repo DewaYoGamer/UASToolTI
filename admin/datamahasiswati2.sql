@@ -22,4 +22,4 @@ PRIMARY KEY (nim),
 FOREIGN KEY (nidn) REFERENCES tbdosen (nidn)
 );
 
-INSERT INTO admin(username, pass) VALUE('yoga', 'yoga123');
+INSERT INTO admin(username, pass) VALUE('admin', 'admin123');
