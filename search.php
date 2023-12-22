@@ -26,17 +26,17 @@
                     <h1 class="fst lh-1 mb-4">Data Mahasiswa TI Udayana</h1>
                     <?php
                     if (isset($_GET['id'])) {
-                        // Connect to the database
-                        $db = new PDO('mysql:host=localhost;dbname=datamahasiswati2', 'yoga', '');
+                        include 'admin/php/connect.php';
 
-                        // Prepare the SQL statement
-                        $stmt = $db->prepare('SELECT tbmahasiswa.*, tbdosen.namaDosen FROM tbmahasiswa JOIN tbdosen ON tbmahasiswa.nidn = tbdosen.nidn WHERE nim = ?');
+                        $stmt = $conn->prepare('SELECT tbmahasiswa.*, tbdosen.namaDosen FROM tbmahasiswa JOIN tbdosen ON tbmahasiswa.nidn = tbdosen.nidn WHERE nim = ?');
 
-                        // Execute the statement with the NIM
-                        $stmt->execute([$_GET['id']]);
+                        $stmt->bind_param('s', $_GET['id']);
 
-                        // Fetch the student data
-                        $student = $stmt->fetch(PDO::FETCH_ASSOC);
+                        $stmt->execute();
+
+                        $result = $stmt->get_result();
+
+                        $student = $result->fetch_assoc();
 
                         if ($student) {
                             echo '
@@ -75,7 +75,7 @@
         </div>
         <div class="social-icons">
             <div class="d-flex flex-row flex-lg-column justify-content-center align-items-center h-100 mt-3 mt-lg-0">
-                <a class="btn btn-dark m-3" href="/admin"><i class="fa-solid fa-user-tie"></i></a>
+                <a class="btn btn-dark m-3" href="/admin" target="_blank"><i class="fa-solid fa-user-tie"></i></a>
             </div>
         </div>
         <!-- Bootstrap core JS-->
