@@ -1,8 +1,8 @@
 Options -Indexes
 RewriteEngine On
 
-# Redirect requests to the root directory to index.html
-RewriteRule ^$ index.html [L]
+# Redirect requests to the root directory to index.php
+RewriteRule ^$ index.php [L]
 
 # If the requested filename is not a directory...
 RewriteCond %{REQUEST_FILENAME} !-d

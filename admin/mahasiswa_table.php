@@ -9,7 +9,7 @@
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>Admin Data Mahasiswa TI - Tabel Kelas</title>
+    <title>Admin Data Mahasiswa TI - Tabel Mahasiswa</title>
 
     <link rel="icon" type="image/x-icon" href="img/hmti-colored.ico">
     <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
@@ -24,8 +24,8 @@
 </head>
 
 <body id="page-top">
-    
-    <?php include("php/connect.php"); 
+
+    <?php include("php/connect.php");
     // Start the session
     session_start();
 
@@ -36,7 +36,7 @@
     exit;
     }
     ?>
-    
+
     <!-- Page Wrapper -->
     <div id="wrapper">
 
@@ -44,7 +44,7 @@
         <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
 
             <!-- Sidebar - Brand -->
-            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="../">
+            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="index.php">
                 <div class="sidebar-brand-icon" style="width: 45px; height: 45px;">
                     <img src="img/hmti-colored.png" alt="Brand Icon" class="img-fluid" style="margin-top: 3px;">
                 </div>
@@ -56,41 +56,41 @@
 
             <!-- Nav Item - Dashboard -->
             <li class="nav-item">
-                <a class="nav-link" href="../">
+                <a class="nav-link" href="index.php">
                     <i class="fas fa-fw fa-tachometer-alt"></i>
                     <span>Dashboard</span></a>
             </li>
 
             <!-- Nav Item - Mahasiswa Menu -->
-            <li class="nav-item">
-                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseMahasiswa"
+            <li class="nav-item active">
+                <a class="nav-link" href="#" data-toggle="collapse" data-target="#collapseMahasiswa"
                     aria-expanded="true" aria-controls="collapseMahasiswa">
                     <i class="fas fa-fw fa-users"></i>
                     <span>Mahasiswa</span>
                 </a>
-                <div id="collapseMahasiswa" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
+                <div id="collapseMahasiswa" class="collapse show" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
                     <div class="bg-white py-2 collapse-inner rounded">
                         <a class="collapse-item" href="add_mahasiswa.php">Tambah Mahasiswa</a>
-                        <a class="collapse-item" href="mahasiswa_table.php">Daftar Mahasiswa</a>
+                        <a class="collapse-item active">Daftar Mahasiswa</a>
                     </div>
                 </div>
             </li>
 
-            <!-- Nav Item - Kelas Menu -->
-            <li class="nav-item active">
-                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseKelas"
-                    aria-expanded="true" aria-controls="collapseKelas">
+            <!-- Nav Item - Dosen Menu -->
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseDosen"
+                    aria-expanded="true" aria-controls="collapseDosen">
                     <i class="fas fa-fw fa-suitcase"></i>
-                    <span>Kelas</span>
+                    <span>Dosen</span>
                 </a>
-                <div id="collapseKelas" class="collapse show" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
+                <div id="collapseDosen" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
                     <div class="bg-white py-2 collapse-inner rounded">
-                        <a class="collapse-item" href="add_kelas.php">Tambah Kelas</a>
-                        <a class="collapse-item active">Daftar Kelas</a>
+                        <a class="collapse-item" href="add_dosen.php">Tambah Dosen</a>
+                        <a class="collapse-item" href="dosen_table.php">Daftar Dosen</a>
                     </div>
                 </div>
             </li>
-            
+
             <!-- Divider -->
             <hr class="sidebar-divider d-none d-md-block">
 
@@ -140,7 +140,7 @@
                 <div class="container-fluid">
 
                     <!-- Page Heading -->
-                    <h1 class="h3 mb-2 text-gray-800">Daftar Kelas</h1>
+                    <h1 class="h3 mb-2 text-gray-800">Daftar Mahasiswa</h1>
 
                     <!-- DataTales Example -->
                     <div class="card shadow mb-4">
@@ -149,28 +149,29 @@
                                 <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
                                     <thead>
                                         <tr>
-                                            <th class="text-center">ID</th>
-                                            <th class="text-center">Kelas</th>
-                                            <th class="text-center">Dosen</th>
-                                            <th class="text-center">Jumlah Mahasiswa</th>
+                                            <th class="text-center">NIM</th>
+                                            <th class="text-center">Nama Mahasiswa</th>
+                                            <th class="text-center">Nomor Telepon</th>
+                                            <th class="text-center">Dosen Pembimbing</th>
                                             <th class="text-center">Aksi</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         <?php
-                                        $tampil = mysqli_query($conn,"SELECT tbkelas.*, COUNT(tbmahasiswa.nim) as jumlahMahasiswa FROM tbkelas LEFT JOIN tbmahasiswa ON tbkelas.idKelas = tbmahasiswa.idKelas GROUP BY tbkelas.idKelas");
+                                        $tampil = mysqli_query($conn, "SELECT tbmahasiswa.*, tbdosen.namaDosen FROM tbmahasiswa JOIN tbdosen ON tbmahasiswa.nidn = tbdosen.nidn");
                                         if (!$tampil) {
                                             echo "Error: " . mysqli_error($conn);
                                         } else {
                                             while ($data = mysqli_fetch_array($tampil)){
                                         ?>
                                         <tr>
-                                            <td><?php echo $data['idKelas']; ?></td>
-                                            <td><?php echo $data['namaKelas']; ?></td>
+                                            <td><?php echo $data['nim']; ?></td>
+                                            <td><?php echo $data['namaMahasiswa']; ?></td>
+                                            <td><?php echo $data['telp']; ?></td>
                                             <td><?php echo $data['namaDosen']; ?></td>
-                                            <td class="text-center"><?php echo $data['jumlahMahasiswa']; ?></td>
                                             <td>
-                                                <a href="php/delete_kelas.php?id=<?php echo $data['idKelas']; ?>" class="btn btn-danger" onclick="return confirm('Apakah yakin ingin menghapus?');">Delete</a>
+                                                <a href="edit_mahasiswa.php?id=<?php echo $data['nim']; ?>" class="btn btn-primary">Edit</a>
+                                                <a href="php/delete_mahasiswa.php?id=<?php echo $data['nim']; ?>" class="btn btn-danger" onclick="return confirm('Apakah yakin ingin menghapus?');">Delete</a>
                                             </td>
                                         </tr>
                                         <?php 
@@ -193,7 +194,7 @@
             <footer class="sticky-footer bg-white">
                 <div class="container my-auto">
                     <div class="copyright text-center my-auto">
-                    <span>Copyright &copy; Dewa Putu Ananta Prayoga 2023</span>
+                        <span>Copyright &copy; Dewa Putu Ananta Prayoga 2023</span>
                     </div>
                 </div>
             </footer>

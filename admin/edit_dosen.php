@@ -9,7 +9,7 @@
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>Admin Data Mahasiswa TI - Tabel Mahasiswa</title>
+    <title>Admin Data Mahasiswa TI - Edit Dosen</title>
 
     <link rel="icon" type="image/x-icon" href="img/hmti-colored.ico">
     <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
@@ -19,13 +19,11 @@
 
     <link href="css/sb-admin-2.min.css" rel="stylesheet">
 
-    <link href="vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet">
-
 </head>
 
 <body id="page-top">
 
-    <?php include("php/connect.php");
+    <?php include("php/connect.php"); 
     // Start the session
     session_start();
 
@@ -35,6 +33,57 @@
     header("Location: login.php");
     exit;
     }
+    
+    $err = false;
+    $nidn = '';
+    $nama_dosen = '';
+    $email = '';
+
+    $nidn_error = '';
+    $nama_dosen_error = '';
+    $email_error = '';
+
+    $id = $_GET['id'];
+    $result = mysqli_query($conn, "SELECT * FROM tbdosen WHERE nidn='$id'");
+    $row = mysqli_fetch_assoc($result);
+
+    if(isset($_POST['simpan'])){
+        $nidn = $_POST['nidn'];
+        $nama_dosen = $_POST['nama_dosen'];
+        $email = $_POST['email'];
+
+        $check = mysqli_query($conn, "SELECT * FROM tbdosen WHERE nidn='$nidn'");
+        if (mysqli_num_rows($check) > 0) {
+            $existing = mysqli_fetch_assoc($check);
+            if ($existing['nidn'] != $id) {
+                $nidn_error = 'NIDN sudah digunakan, silahkan coba lagi';
+                $err = true;
+            }
+        }
+
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $email_error = 'Email tidak valid, silahkan coba kembali';
+            $err = true;
+        }
+        if ($nidn == '' || strlen($nidn) != 10) {
+            $nidn_error = 'NIDN tidak valid, silahkan coba kembali';
+            $err = true;
+        }
+        if ($nama_dosen == '' || strlen($nama_dosen) < 3) {
+            $nama_dosen_error = 'Nama dosen tidak valid, silahkan coba kembali';
+            $err = true;
+        }
+        if ($nidn_error == '' && $nama_dosen_error == '' && $email_error == '') {
+            $simpan = mysqli_query($conn, 'UPDATE tbdosen SET nidn="'.$nidn.'", namaDosen="'.$nama_dosen.'", email="'.$email.'" WHERE nidn="'.$id.'"');
+            echo '
+            <script>
+            alert("Dosen berhasil diperbaharui!");
+            window.location="dosen_table.php";
+            </script>
+            ';
+        }
+    }
+
     ?>
 
     <!-- Page Wrapper -->
@@ -44,7 +93,7 @@
         <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
 
             <!-- Sidebar - Brand -->
-            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="../">
+            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="index.php">
                 <div class="sidebar-brand-icon" style="width: 45px; height: 45px;">
                     <img src="img/hmti-colored.png" alt="Brand Icon" class="img-fluid" style="margin-top: 3px;">
                 </div>
@@ -56,37 +105,37 @@
 
             <!-- Nav Item - Dashboard -->
             <li class="nav-item">
-                <a class="nav-link" href="../">
+                <a class="nav-link" href="index.php">
                     <i class="fas fa-fw fa-tachometer-alt"></i>
                     <span>Dashboard</span></a>
             </li>
 
             <!-- Nav Item - Mahasiswa Menu -->
-            <li class="nav-item active">
+            <li class="nav-item">
                 <a class="nav-link" href="#" data-toggle="collapse" data-target="#collapseMahasiswa"
                     aria-expanded="true" aria-controls="collapseMahasiswa">
                     <i class="fas fa-fw fa-users"></i>
                     <span>Mahasiswa</span>
                 </a>
-                <div id="collapseMahasiswa" class="collapse show" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
+                <div id="collapseMahasiswa" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
                     <div class="bg-white py-2 collapse-inner rounded">
                         <a class="collapse-item" href="add_mahasiswa.php">Tambah Mahasiswa</a>
-                        <a class="collapse-item active">Daftar Mahasiswa</a>
+                        <a class="collapse-item" href="mahasiswa_table.php">Daftar Mahasiswa</a>
                     </div>
                 </div>
             </li>
 
-            <!-- Nav Item - Kelas Menu -->
-            <li class="nav-item">
-                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseKelas"
-                    aria-expanded="true" aria-controls="collapseKelas">
+            <!-- Nav Item - Dosen Menu -->
+            <li class="nav-item active">
+                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseDosen"
+                    aria-expanded="true" aria-controls="collapseDosen">
                     <i class="fas fa-fw fa-suitcase"></i>
-                    <span>Kelas</span>
+                    <span>Dosen</span>
                 </a>
-                <div id="collapseKelas" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
+                <div id="collapseDosen" class="collapse show" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
                     <div class="bg-white py-2 collapse-inner rounded">
-                        <a class="collapse-item" href="add_kelas.php">Tambah Kelas</a>
-                        <a class="collapse-item" href="kelas_table.php">Daftar Kelas</a>
+                        <a class="collapse-item" href="add_dosen.php">Tambah Dosen</a>
+                        <a class="collapse-item active">Daftar Dosen</a>
                     </div>
                 </div>
             </li>
@@ -131,58 +180,54 @@
                                 </a>
                             </div>
                         </li>
-                    </ul>
 
+                    </ul>
                 </nav>
-                <!-- End of Topbar -->  
+                <!-- End of Topbar -->
 
                 <!-- Begin Page Content -->
                 <div class="container-fluid">
 
                     <!-- Page Heading -->
-                    <h1 class="h3 mb-2 text-gray-800">Daftar Mahasiswa</h1>
+                    <h1 class="h3 mb-4 text-gray-800">Tambah Dosen</h1>
 
-                    <!-- DataTales Example -->
-                    <div class="card shadow mb-4">
-                        <div class="card-body">
-                            <div class="table-responsive">
-                                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
-                                    <thead>
-                                        <tr>
-                                            <th class="text-center">NIM</th>
-                                            <th class="text-center">Nama Mahasiswa</th>
-                                            <th class="text-center">Nomor Telepon</th>
-                                            <th class="text-center">Kelas</th>
-                                            <th class="text-center">Aksi</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <?php
-                                        $tampil = mysqli_query($conn, "SELECT tbmahasiswa.*, tbkelas.namaKelas FROM tbmahasiswa JOIN tbkelas ON tbmahasiswa.idKelas = tbkelas.idKelas");
-                                        if (!$tampil) {
-                                            echo "Error: " . mysqli_error($conn);
-                                        } else {
-                                            while ($data = mysqli_fetch_array($tampil)){
-                                        ?>
-                                        <tr>
-                                            <td><?php echo $data['nim']; ?></td>
-                                            <td><?php echo $data['namaMahasiswa']; ?></td>
-                                            <td><?php echo $data['telp']; ?></td>
-                                            <td><?php echo $data['namaKelas']; ?></td>
-                                            <td>
-                                                <a href="php/delete_mahasiswa.php?id=<?php echo $data['nim']; ?>" class="btn btn-danger" onclick="return confirm('Apakah yakin ingin menghapus?');">Delete</a>
-                                            </td>
-                                        </tr>
-                                        <?php 
-                                            }
-                                        } 
-                                        ?>
-                                    </tbody>
-                                </table>
-                            </div>
+                    <div class="alert alert-light" role="alert">
+                        <div class="card">
+                            <form method="POST" enctype="multipart/form-data">
+                                <div class="card-body col-md-12">
+                                <div class="form-row">
+                                    <div class="form-group col-md-6">
+                                        <label for="nidn">NIDN<span style="color:red;">*</span></label>
+                                        <input class="form-control" name="nidn" id="nidn" type="number" placeholder="Masukan NIDN" value="<?php if (!$err) {echo $row['nidn'];} else {echo htmlspecialchars($nidn);} ?>" oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);" maxLength="10" />
+                                        <?php if ($nidn_error): ?>
+                                            <div style="color: red;"><?php echo $nidn_error; ?></div>
+                                        <?php endif; ?>
+                                    </div>
+                                    <div class="form-group col-md-6">
+                                        <label for="nama_dosen">Nama Dosen<span style="color:red;">*</span></label>
+                                        <input class="form-control" name="nama_dosen" id="nama_dosen" type="text" placeholder="Masukan Nama Dosen" value="<?php if (!$err) {echo $row['namaDosen'];} else {echo htmlspecialchars($nama_dosen);} ?>" oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);" maxLength="255" />
+                                        <?php if ($nama_dosen_error): ?>
+                                            <div style="color: red;"><?php echo $nama_dosen_error; ?></div>
+                                        <?php endif; ?>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group col-md-6">
+                                        <label for="email">Email<span style="color:red;">*</span></label>
+                                        <input class="form-control" name="email" id="email" type="text" placeholder="Masukan Email" value="<?php if (!$err) {echo $row['email'];} else {echo htmlspecialchars($email);} ?>" oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);" maxLength="255" />
+                                        <?php if ($email_error): ?>
+                                            <div style="color: red;"><?php echo $email_error; ?></div>
+                                        <?php endif; ?>
+                                    </div>
+                                </div>
+                                </div>
+                                <div class="card-footer">
+                                    <button type="submit" name="simpan" class="btn btn-primary"><i class="fa fa-save"></i> Simpan</button>
+                                    <button type="button" onclick="window.history.back()" class="btn btn-danger"><i class="fa fa-arrow-left"></i> Batal</button>
+                                </div>
+                            </form>
                         </div>
                     </div>
-
                 </div>
                 <!-- /.container-fluid -->
 
@@ -239,13 +284,6 @@
 
     <!-- Custom scripts for all pages-->
     <script src="js/sb-admin-2.min.js"></script>
-
-    <!-- Page level plugins -->
-    <script src="vendor/datatables/jquery.dataTables.min.js"></script>
-    <script src="vendor/datatables/dataTables.bootstrap4.min.js"></script>
-
-    <!-- Page level custom scripts -->
-    <script src="js/demo/datatables-demo.js"></script>
 
 </body>
 

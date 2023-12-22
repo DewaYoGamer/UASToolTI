@@ -9,7 +9,7 @@
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>Admin Data Mahasiswa TI - Dashboard</title>
+    <title>Admin Data Mahasiswa TI - Tambah Dosen</title>
 
     <link rel="icon" type="image/x-icon" href="img/hmti-colored.ico">
     <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
@@ -23,23 +23,56 @@
 
 <body id="page-top">
 
-    <?php
-    include 'php/connect.php';
-
+    <?php include("php/connect.php"); 
+    // Start the session
     session_start();
 
+    // Check if the user is logged in
     if (!isset($_SESSION['username'])) {
+    // Redirect the user to the login page
     header("Location: login.php");
     exit;
     }
+    
+    $nidn = '';
+    $nama_dosen = '';
+    $email = '';
 
-    $result = mysqli_query($conn, "SELECT COUNT(*) AS totalMahasiswa FROM tbmahasiswa");
-    $data = mysqli_fetch_assoc($result);
-    $totalmahasiswa = $data['totalMahasiswa'];
+    $nidn_error = '';
+    $nama_dosen_error = '';
+    $email_error = '';
 
-    $result = mysqli_query($conn, "SELECT COUNT(*) AS totalKelas FROM tbkelas");
-    $data = mysqli_fetch_assoc($result);
-    $totalkelas = $data['totalKelas'];
+    if(isset($_POST['simpan'])){
+        $nidn = $_POST['nidn'];
+        $nama_dosen = $_POST['nama_dosen'];
+        $email = $_POST['email'];
+
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $email_error = 'Email tidak valid, silahkan coba kembali';
+        }
+        if ($nidn == '' || strlen($nidn) != 10) {
+            $nidn_error = 'NIDN tidak valid, silahkan coba kembali';
+        }
+        if ($nama_dosen == '' || strlen($nama_dosen) < 3) {
+            $nama_dosen_error = 'Nama dosen tidak valid, silahkan coba kembali';
+        }
+        if ($nidn_error == '' && $nama_dosen_error == '' && $email_error == '') {
+            $check = mysqli_query($conn, "SELECT * FROM tbdosen WHERE nidn='$nidn'");
+            if (mysqli_num_rows($check) > 0) {
+                $nidn_error = 'NIDN sudah ada, silahkan coba lagi';
+            } else {
+                $simpan = mysqli_query($conn, 'INSERT INTO tbdosen(nidn,namaDosen,email) VALUES ("'.$nidn.'", "'.$nama_dosen.'", "'.$email.'")' );
+                echo '
+                <script>
+                alert("Dosen berhasil ditambahkan!");
+                window.location="dosen_table.php";
+                </script>
+                ';
+            }
+        }
+        
+    }
+
     ?>
 
     <!-- Page Wrapper -->
@@ -60,15 +93,15 @@
             <hr class="sidebar-divider my-0">
 
             <!-- Nav Item - Dashboard -->
-            <li class="nav-item active">
-                <a class="nav-link">
+            <li class="nav-item">
+                <a class="nav-link" href="index.php">
                     <i class="fas fa-fw fa-tachometer-alt"></i>
                     <span>Dashboard</span></a>
             </li>
 
             <!-- Nav Item - Mahasiswa Menu -->
             <li class="nav-item">
-                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseMahasiswa"
+                <a class="nav-link" href="#" data-toggle="collapse" data-target="#collapseMahasiswa"
                     aria-expanded="true" aria-controls="collapseMahasiswa">
                     <i class="fas fa-fw fa-users"></i>
                     <span>Mahasiswa</span>
@@ -81,17 +114,17 @@
                 </div>
             </li>
 
-            <!-- Nav Item - Kelas Menu -->
-            <li class="nav-item">
-                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseKelas"
-                    aria-expanded="true" aria-controls="collapseKelas">
+            <!-- Nav Item - Dosen Menu -->
+            <li class="nav-item active">
+                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseDosen"
+                    aria-expanded="true" aria-controls="collapseDosen">
                     <i class="fas fa-fw fa-suitcase"></i>
-                    <span>Kelas</span>
+                    <span>Dosen</span>
                 </a>
-                <div id="collapseKelas" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
+                <div id="collapseDosen" class="collapse show" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
                     <div class="bg-white py-2 collapse-inner rounded">
-                        <a class="collapse-item" href="add_kelas.php">Tambah Kelas</a>
-                        <a class="collapse-item" href="kelas_table.php">Daftar Kelas</a>
+                        <a class="collapse-item active">Tambah Dosen</a>
+                        <a class="collapse-item" href="dosen_table.php">Daftar Dosen</a>
                     </div>
                 </div>
             </li>
@@ -136,8 +169,8 @@
                                 </a>
                             </div>
                         </li>
-                    </ul>
 
+                    </ul>
                 </nav>
                 <!-- End of Topbar -->
 
@@ -145,47 +178,43 @@
                 <div class="container-fluid">
 
                     <!-- Page Heading -->
-                    <div class="d-sm-flex align-items-center justify-content-between mb-4">
-                        <h1 class="h3 mb-0 text-gray-800">Dashboard</h1>
-                    </div>
+                    <h1 class="h3 mb-4 text-gray-800">Tambah Dosen</h1>
 
-                    <!-- Content Row -->
-                    <div class="row">
-
-                        <!-- Total Mahasiswa -->
-                        <div class="col-xl-3 col-md-6 mb-4">
-                            <div class="card border-left-primary shadow h-100 py-2">
-                                <div class="card-body">
-                                    <div class="row no-gutters align-items-center">
-                                        <div class="col mr-2">
-                                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                                Total Mahasiswa</div>
-                                            <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo $totalmahasiswa; ?></div>
-                                        </div>
-                                        <div class="col-auto">
-                                            <i class="fas fa-users fa-2x text-gray-300"></i>
-                                        </div>
+                    <div class="alert alert-light" role="alert">
+                        <div class="card">
+                            <form method="POST" enctype="multipart/form-data">
+                                <div class="card-body col-md-12">
+                                <div class="form-row">
+                                    <div class="form-group col-md-6">
+                                        <label for="nidn">NIDN<span style="color:red;">*</span></label>
+                                        <input class="form-control" name="nidn" id="nidn" type="number" placeholder="Masukan NIDN" value="<?php echo htmlspecialchars($nidn); ?>" oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);" maxLength="10" />
+                                        <?php if ($nidn_error): ?>
+                                            <div style="color: red;"><?php echo $nidn_error; ?></div>
+                                        <?php endif; ?>
+                                    </div>
+                                    <div class="form-group col-md-6">
+                                        <label for="nama_dosen">Nama Dosen<span style="color:red;">*</span></label>
+                                        <input class="form-control" name="nama_dosen" id="nama_dosen" type="text" placeholder="Masukan Nama Dosen" value="<?php echo htmlspecialchars($nama_dosen); ?>" oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);" maxLength="255" />
+                                        <?php if ($nama_dosen_error): ?>
+                                            <div style="color: red;"><?php echo $nama_dosen_error; ?></div>
+                                        <?php endif; ?>
                                     </div>
                                 </div>
-                            </div>
-                        </div>
-
-                        <!-- Total Kelas -->
-                        <div class="col-xl-3 col-md-6 mb-4">
-                            <div class="card border-left-success shadow h-100 py-2">
-                                <div class="card-body">
-                                    <div class="row no-gutters align-items-center">
-                                        <div class="col mr-2">
-                                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                                                Total Kelas</div>
-                                            <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo $totalkelas; ?></div>
-                                        </div>
-                                        <div class="col-auto">
-                                            <i class="fas fa-suitcase fa-2x text-gray-300"></i>
-                                        </div>
+                                <div class="form-row">
+                                    <div class="form-group col-md-6">
+                                        <label for="email">Email<span style="color:red;">*</span></label>
+                                        <input class="form-control" name="email" id="email" type="text" placeholder="Masukan Email" value="<?php echo htmlspecialchars($email); ?>" oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);" maxLength="255" />
+                                        <?php if ($email_error): ?>
+                                            <div style="color: red;"><?php echo $email_error; ?></div>
+                                        <?php endif; ?>
                                     </div>
                                 </div>
-                            </div>
+                                </div>
+                                <div class="card-footer">
+                                    <button type="submit" name="simpan" class="btn btn-primary"><i class="fa fa-save"></i> Simpan</button>
+                                    <button type="button" onclick="window.history.back()" class="btn btn-danger"><i class="fa fa-arrow-left"></i> Batal</button>
+                                </div>
+                            </form>
                         </div>
                     </div>
                 </div>
@@ -244,13 +273,6 @@
 
     <!-- Custom scripts for all pages-->
     <script src="js/sb-admin-2.min.js"></script>
-
-    <!-- Page level plugins -->
-    <script src="vendor/chart.js/Chart.min.js"></script>
-
-    <!-- Page level custom scripts -->
-    <script src="js/demo/chart-area-demo.js"></script>
-    <script src="js/demo/chart-pie-demo.js"></script>
 
 </body>
 

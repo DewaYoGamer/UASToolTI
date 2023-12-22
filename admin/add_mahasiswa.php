@@ -23,7 +23,7 @@
 
 <body id="page-top">
 
-    <?php include("php/connect.php"); 
+    <?php include("php/connect.php");
     // Start the session
     session_start();
 
@@ -33,6 +33,54 @@
     header("Location: login.php");
     exit;
     }
+    $nim = '';
+    $nama_mahasiswa = '';
+    $telp = '';
+    $dosen = '';
+
+    $nim_error = '';
+    $nama_mahasiswa_error = '';
+    $telp_error = '';
+    $dosen_error = '';
+    if(isset($_POST['simpan'])){
+        $nim = $_POST['nim'] ?? '';
+        $nama_mahasiswa = $_POST['nama_mahasiswa'] ?? '';
+        $telp = $_POST['telp'] ?? '';
+        $dosen = $_POST['dosen'] ?? '';
+
+        if ($nim == '' || strlen($nim) != 10) {
+            $nim_error = 'NIM tidak valid, silahkan coba kembali';
+        }
+        if ($nama_mahasiswa == '' || strlen($nama_mahasiswa) < 3) {
+            $nama_mahasiswa_error = 'Nama mahasiswa tidak valid, silahkan coba kembali';
+        }
+        if ($telp == '' || strlen($telp) < 8) {
+            $telp_error = 'Nomor telepon tidak valid, silahkan coba kembali';
+        }
+        if (empty($dosen)) {
+            $dosen_error = 'Dosen tidak boleh kosong';
+        }
+
+        if ($nim_error == '' && $nama_mahasiswa_error == '' && $telp_error == '' && $dosen_error == '') {
+            $check = mysqli_query($conn, "SELECT * FROM tbmahasiswa WHERE nim='$nim'");
+            if (mysqli_num_rows($check) > 0) {
+                $nim_error = 'NIM sudah ada, silahkan coba kembali';
+            } else {
+                $simpan = mysqli_query($conn, 'INSERT INTO tbmahasiswa(nim,namaMahasiswa,telp,nidn) VALUES ("'.$nim.'", "'.$nama_mahasiswa.'", "'.$telp.'" , "'.$dosen.'")' );
+                if ($simpan) {
+                    echo '
+                <script>
+                alert("Mahasiswa berhasil ditambahkan!");
+                window.location="mahasiswa_table.php";
+                </script>
+                ';
+                }
+                else{
+                    echo "<script>alert('Gagal menambahkan data!');</script>";
+                }
+            }
+        }
+        }
     ?>
 
     <!-- Page Wrapper -->
@@ -42,7 +90,7 @@
         <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
 
             <!-- Sidebar - Brand -->
-            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="../">
+            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="index.php">
                 <div class="sidebar-brand-icon" style="width: 45px; height: 45px;">
                     <img src="img/hmti-colored.png" alt="Brand Icon" class="img-fluid" style="margin-top: 3px;">
                 </div>
@@ -54,37 +102,37 @@
 
             <!-- Nav Item - Dashboard -->
             <li class="nav-item">
-                <a class="nav-link" href="../">
+                <a class="nav-link" href="index.php">
                     <i class="fas fa-fw fa-tachometer-alt"></i>
                     <span>Dashboard</span></a>
             </li>
 
             <!-- Nav Item - Mahasiswa Menu -->
-            <li class="nav-item">
+            <li class="nav-item active">
                 <a class="nav-link" href="#" data-toggle="collapse" data-target="#collapseMahasiswa"
                     aria-expanded="true" aria-controls="collapseMahasiswa">
                     <i class="fas fa-fw fa-users"></i>
                     <span>Mahasiswa</span>
                 </a>
-                <div id="collapseMahasiswa" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
+                <div id="collapseMahasiswa" class="collapse show" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
                     <div class="bg-white py-2 collapse-inner rounded">
-                        <a class="collapse-item" href="add_mahasiswa.php">Tambah Mahasiswa</a>
+                        <a class="collapse-item active">Tambah Mahasiswa</a>
                         <a class="collapse-item" href="mahasiswa_table.php">Daftar Mahasiswa</a>
                     </div>
                 </div>
             </li>
 
-            <!-- Nav Item - Kelas Menu -->
-            <li class="nav-item active">
-                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseKelas"
-                    aria-expanded="true" aria-controls="collapseKelas">
+            <!-- Nav Item - Dosen Menu -->
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseDosen"
+                    aria-expanded="true" aria-controls="collapseDosen">
                     <i class="fas fa-fw fa-suitcase"></i>
-                    <span>Kelas</span>
+                    <span>Dosen</span>
                 </a>
-                <div id="collapseKelas" class="collapse show" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
+                <div id="collapseDosen" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
                     <div class="bg-white py-2 collapse-inner rounded">
-                        <a class="collapse-item active">Tambah Kelas</a>
-                        <a class="collapse-item" href="kelas_table.php">Daftar Kelas</a>
+                        <a class="collapse-item" href="add_dosen.php">Tambah Dosen</a>
+                        <a class="collapse-item" href="dosen_table.php">Daftar Dosen</a>
                     </div>
                 </div>
             </li>
@@ -138,26 +186,59 @@
                 <div class="container-fluid">
 
                     <!-- Page Heading -->
-                    <h1 class="h3 mb-4 text-gray-800">Tambah Kelas</h1>
-
+                    <h1 class="h3 mb-4 text-gray-800">Tambah Mahasiswa</h1>
+                    
                     <div class="alert alert-light" role="alert">
                         <div class="card">
                             <form method="POST" enctype="multipart/form-data">
                                 <div class="card-body col-md-12">
-                                    <div class="form-row">
+                                <div class="form-row">
                                         <div class="form-group col-md-6">
-                                            <label for="idKelas">ID Kelas<span style="color:red;">*</span></label>
-                                            <input class="form-control" name="idKelas" id="idKelas" type="text" placeholder="Masukan ID Kelas" oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);" maxLength="5" />
+                                            <label for="nim">NIM<span style="color:red;">*</span></label>
+                                            <input class="form-control" name="nim" id="nim" type="number" placeholder="Masukan NIM" value="<?php echo htmlspecialchars($nim); ?>" oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);" maxLength="10" />
+                                            <?php if ($nim_error): ?>
+                                            <div style="color: red;"><?php echo $nim_error; ?></div>
+                                            <?php endif; ?>
                                         </div>
                                         <div class="form-group col-md-6">
-                                            <label for="nama_kelas">Nama Kelas<span style="color:red;">*</span></label>
-                                            <input class="form-control" name="nama_kelas" id="nama_kelas" type="text" placeholder="Masukan Nama Kelas" maxLength="255" />
+                                            <label for="nama_mahasiswa">Nama Mahasiswa<span style="color:red;">*</span></label>
+                                            <input class="form-control" name="nama_mahasiswa" id="nama_mahasiswa" type="text" placeholder="Masukan Nama Mahasiswa" value="<?php echo htmlspecialchars($nama_mahasiswa); ?>" maxLength="255" />
+                                            <?php if ($nama_mahasiswa_error): ?>
+                                            <div style="color: red;"><?php echo $nama_mahasiswa_error; ?></div>
+                                            <?php endif; ?>
                                         </div>
                                     </div>
                                     <div class="form-row">
                                         <div class="form-group col-md-6">
-                                            <label for="nama_dosen">Nama Dosen<span style="color:red;">*</span></label>
-                                            <input class="form-control" name="nama_dosen" id="nama_dosen" type="text" placeholder="Masukan Nama Dosen" oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);" maxLength="255" />
+                                            <label for="telp">Nomor Telepon<span style="color:red;">*</span></label>
+                                            <input class="form-control" name="telp" id="telp" type="number" placeholder="Masukan Nomor Telepon" value="<?php echo htmlspecialchars($telp); ?>" oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);" maxLength="13" />
+                                            <?php if ($telp_error): ?>
+                                            <div style="color: red;"><?php echo $telp_error; ?></div>
+                                            <?php endif; ?>
+                                        </div>
+                                        <div class="form-group col-md-6">
+                                            <label for="exampleFormControlSelect1">Dosen Pembimbing<span style="color:red;">*</span></label>
+                                            <select class="selectpicker form-control" id="exampleFormControlSelect1" name="dosen"
+                                            data-live-search="true" title="Select Petugas" data-hide-disabled="true">
+                                            <?php
+                                            if (!isset($_POST['dosen'])){
+                                                echo "<option selected disabled>-- Tambah Dosen --</option>";
+                                            }
+                                            else{
+                                                echo "<option disabled>-- Tambah Dosen --</option>";
+                                            }
+                                            $tampil = mysqli_query($conn, "SELECT * FROM tbdosen");
+                                            while ($data = mysqli_fetch_array($tampil)) {
+                                                $selected = ($_POST['dosen'] == $data['nidn']) ? 'selected' : '';
+                                            ?>
+                                            <option value="<?php echo $data['nidn'] ?>" <?php echo $selected; ?>>
+                                                <?php echo $data['namaDosen'] ?>
+                                            </option>
+                                            <?php } ?>
+                                            </select>
+                                            <?php if ($dosen_error): ?>
+                                            <div style="color: red;"><?php echo $dosen_error; ?></div>
+                                            <?php endif; ?>
                                         </div>
                                     </div>
                                 </div>
@@ -168,32 +249,6 @@
                             </form>
                         </div>
                     </div>
-                        <?php
-                        if(isset($_POST['simpan'])){
-                        $idKelas = $_POST['idKelas'];
-                        $nama_kelas = $_POST['nama_kelas'];
-                        $nama_dosen = $_POST['nama_dosen'];
-
-                        
-                        if ($idKelas == '' || $nama_kelas == '' || $nama_dosen == '' || strlen($nama_kelas) < 3 || strlen($nama_dosen) < 3 || strlen($idKelas) != 5) {
-                            echo "<script>alert('Masukan tidak valid, silahkan coba kembali');</script>";
-                        } else {
-                            $check = mysqli_query($conn, "SELECT * FROM tbkelas WHERE idKelas='$idKelas'");
-                            if (mysqli_num_rows($check) > 0) {
-                                echo "<script>alert('ID sudah ada, silahkan coba lagi');</script>";
-                            } else {
-                                $simpan = mysqli_query($conn, 'INSERT INTO tbkelas(idKelas,namaKelas,namaDosen) VALUES ("'.$idKelas.'", "'.$nama_kelas.'", "'.$nama_dosen.'")' );
-                                echo '
-                                <script>
-                                alert("Kelas berhasil ditambahkan!");
-                                window.location="kelas_table.php";
-                                </script>
-                                ';
-                            }
-                        }   
-                        }
-                        ?>
-
                 </div>
                 <!-- /.container-fluid -->
 
@@ -204,7 +259,7 @@
             <footer class="sticky-footer bg-white">
                 <div class="container my-auto">
                     <div class="copyright text-center my-auto">
-                        <span>Copyright &copy; Dewa Putu Ananta Prayoga 2023</span>
+                        <span>Copyright &copy; Dewa Putu Ananta Prayoga 2023</span> 
                     </div>
                 </div>
             </footer>
