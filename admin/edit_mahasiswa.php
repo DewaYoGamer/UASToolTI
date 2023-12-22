@@ -219,11 +219,15 @@
                                                 <?php
                                                 $tampil = mysqli_query($conn, "SELECT * FROM tbdosen");
                                                 while ($data = mysqli_fetch_array($tampil)) {
-                                                    ?>
-                                                <option value="<?php echo $data['nidn'] ?>" <?php if ($data['nidn'] == $row['nidn']) echo 'selected'; ?>>
-                                                    <?php echo $data['namaDosen'] ?>
-                                                </option>
-                                                <?php } ?>
+                                                $selected = ($_POST['dosen'] == $data['nidn']) ? 'selected' : '';
+                                                if(!$err){
+                                                    echo '<option value="' . $data['nidn'] . '"' . ($data['nidn'] == $row['nidn'] ? ' selected' : '') . '>' . $data['namaDosen'] . '</option>';
+                                                }
+                                                else{
+                                                    echo '<option value="' . $data['nidn'] . '"' . $selected . '>' . $data['namaDosen'] . '</option>';
+                                                }
+
+                                                } ?>
                                             </select>
                                             <?php if ($dosen_error): ?>
                                             <div style="color: red;"><?php echo $dosen_error; ?></div>
@@ -233,7 +237,7 @@
                                 </div>
                                 <div class="card-footer">
                                     <button type="submit" name="simpan" class="btn btn-primary"><i class="fa fa-save"></i> Simpan</button>
-                                    <button type="button" onclick="window.history.back()" class="btn btn-danger"><i class="fa fa-arrow-left"></i> Batal</button>
+                                    <a href="mahasiswa_table.php" class="btn btn-danger"><i class="fa fa-arrow-left"></i> Batal</a>
                                 </div>
                             </form>
                         </div>
